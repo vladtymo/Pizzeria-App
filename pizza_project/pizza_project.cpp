@@ -1,4 +1,5 @@
 ﻿#include <iostream>
+#include <fstream>
 #include <vector>
 using namespace std;
 
@@ -19,6 +20,7 @@ using namespace std;
 */
 
 enum SizeType { Small, Medium, Large };
+enum OperationType { Exit, Add, Delete, Show, Find, Save, Load };
 
 struct Pizza
 {
@@ -141,6 +143,109 @@ public:
 
 	// TODO: створити метод для замовлення власної піци передавши свій список інгредієнтів
 	double Order(SizeType size, vector<string> ingredients);
+
+	void Save()
+	{
+		// out file stream
+		ofstream out("data.txt");
+
+		for (auto pizza : pizzaList)
+		{
+			out << pizza.name << " " << pizza.size << " " << pizza.price << endl;
+			for (auto ing : pizza.ingredients)
+			{
+				out << ing << " ";
+			}
+			out << endl;
+		}
+
+		out.close();
+	}
+};
+
+class AppMenu {
+public:
+
+	void Show()
+	{
+		cout << "============ MENU ============\n";
+		cout << Add << " - Add New Pizza\n";
+		cout << Delete << " - Delete Pizza\n";
+		cout << OperationType::Show << " - Show Pizza Menu\n";
+		cout << Find << " - Find Pizza by Ingredients\n";
+		cout << Save << " - Save\n";
+		cout << Load << " - Load\n";
+		cout << Exit << " - Exit\n";
+	}
+	OperationType ChooseOperation()
+	{
+		int value = 0;
+		cout << "Enter operation: ";
+		cin >> value;
+
+		while (value < 0 || value > 6)
+		{
+			cout << "Invalid operation! Please, try again: ";
+			cin >> value;
+		}
+
+		return (OperationType)value;
+	}
+};
+
+class Program
+{
+private:
+	AppMenu menu;
+	Pizzeria pizzeria;
+
+public:
+	Program() : pizzeria("Bazzikalo", "Soborna street, 34b")
+	{
+		cout << "Program started!";
+	}
+
+	void Start()
+	{
+		menu.Show();
+		OperationType operation = Exit;
+
+		string name;
+
+		do
+		{
+			operation = menu.ChooseOperation();
+
+			switch (operation)
+			{
+			case Add:
+				// TODO: enter data from keyboard
+				pizzeria.AddPizza(StandardPizza("Neo", SizeType::Small, 78, { "mozzarella", "garlic", "onion", "chicken", "tomato" }));
+				break;
+			case Delete:
+				cout << "Pizza name to delete: ";
+				cin >> name;
+				pizzeria.DeletePizza(name);
+				break;
+			case Show:
+				pizzeria.ShowMenu();
+				break;
+			case Find:
+				cout << "Ingrediaent name to find: ";
+				cin >> name;
+				pizzeria.FindPizza(name);
+				break;
+			case Save:
+				pizzeria.Save();
+				break;
+			case Load:
+				break;
+			}
+
+		} while (operation != Exit);
+	}
+
+	// TODO: add, delete, find methods...
 };
 
 //------------------------------------------------------------------------------------------
@@ -148,14 +253,6 @@ public:
 
 int main()
 {
-	Pizzeria p("Bazzikalo", "Soborna street, 34b");
-
-	p.AddPizza(StandardPizza("Neo", SizeType::Small, 78, { "mozzarella", "garlic", "onion", "chicken", "tomato" }));
-	p.AddPizza(StandardPizza("Neo", SizeType::Medium, 95, { "mozzarella", "garlic", "onion", "chicken", "tomato" }));
-	p.AddPizza(StandardPizza("Neo", SizeType::Large, 140, { "mozzarella", "garlic", "onion", "chicken", "tomato" }));
-	p.DeletePizza("Neo");
-
-	p.ShowMenu();
-
-	p.FindPizza("tomato");
+	Program program;
+	program.Start();
 }
