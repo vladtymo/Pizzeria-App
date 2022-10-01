@@ -1,5 +1,6 @@
 ﻿#include <iostream>
 #include <fstream>
+#include <string>
 #include <vector>
 using namespace std;
 
@@ -29,6 +30,7 @@ struct Pizza
 	vector<string> ingredients; // { "meat", "peper", "onion" }
 	double price;
 
+	Pizza() { }
 	Pizza(SizeType size, double price, vector<string> ingredients)
 		: size(size), price(price), ingredients(ingredients)
 	{ }
@@ -38,6 +40,7 @@ struct StandardPizza : public Pizza
 {
 	string name;
 
+	StandardPizza() { }
 	StandardPizza(string name, SizeType size, double price, vector<string> ingredients)
 		: Pizza(size, price, ingredients), name(name)
 	{ }
@@ -149,17 +152,58 @@ public:
 		// out file stream
 		ofstream out("data.txt");
 
+		out << this->pizzaList.size() << endl;
+
 		for (auto pizza : pizzaList)
 		{
-			out << pizza.name << " " << pizza.size << " " << pizza.price << endl;
+			out << pizza.name << endl;
+			out << pizza.size << endl; 
+			out << pizza.price << endl;
+
+			out << pizza.ingredients.size() << endl;
+
 			for (auto ing : pizza.ingredients)
 			{
-				out << ing << " ";
+				out << ing << endl;
 			}
-			out << endl;
 		}
 
 		out.close();
+	}
+
+	void Load()
+	{
+		ifstream in("data.txt");
+
+		int count = 0;
+		in >> count;
+		in.ignore();
+
+		for (size_t i = 0; i < count; i++)
+		{
+			StandardPizza p;
+
+			getline(in, p.name);
+
+			int size;
+			in >> size;
+			p.size = (SizeType)size;
+
+			in >> p.price;
+
+			int ingredientsCount;
+			in >> ingredientsCount;
+			in.ignore();
+
+			for (size_t i = 0; i < ingredientsCount; i++)
+			{
+				string name;
+				getline(in, name);
+				p.ingredients.push_back(name);
+			}
+
+			pizzaList.push_back(p);
+		}
 	}
 };
 
@@ -237,8 +281,11 @@ public:
 				break;
 			case Save:
 				pizzeria.Save();
+				cout << "Saved!\n";
 				break;
 			case Load:
+				pizzeria.Load();
+				cout << "Loaded!\n";
 				break;
 			}
 
